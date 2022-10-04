@@ -22,7 +22,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Page content -->
   <div class="container-fluid mt--6">
     <div class="row">
@@ -37,15 +37,41 @@
             <table class="table align-items-center table-flush">
               <thead class="thead-light">
                 <tr>
-                  <th scope="col" class="sort" data-sort="name">Servers</th>
-                  <th scope="col" class="sort" data-sort="budget">Status</th>
-                  <th scope="col" class="sort" data-sort="status">Next Cron</th>
-                  <th scope="col">Users</th>
-                  <th scope="col" class="sort" data-sort="completion">Services</th>
+                  <th scope="col" class="sort" data-sort="name">Server</th>
+                  <th scope="col" class="sort" data-sort="connecteddevices">Connected Devices</th>
+                  <th scope="col" class="sort" data-sort="user">User</th>
+                  <th scope="col" class="nextcron">Next Cron</th>
+                  <th scope="col" class="sort" data-sort="services">Services</th>
                   <th scope="col"></th>
                 </tr>
               </thead>
               <tbody class="list">
+              {% for entry in server_host_data %}
+              <tr>
+                <th scope="row">
+                      <div class="media align-items-center">
+                        <a href="servers/{{entry[1]}}" class="avatar rounded-circle mr-3">
+                          <i class="ni ni-world"></i>
+                        </a>
+                        <div class="media-body">
+                          <span class="name mb-0 text-sm">{{entry[1]}}</span>
+                        </div>
+                      </div>
+                    </th>
+                <td class="connecteddevices">
+                  {{entry[2]}}
+                </td>
+                <td class="user">
+                  None
+                </td>
+                <td class="nextcron">
+                  None
+                </td>
+                 <td class="services">
+                      {{entry[3]}}
+                    </td>
+              </tr>
+              {% endfor %}
                <!--
                 <tr>
 
@@ -709,5 +735,5 @@
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
+<!-- Specific JS goes HERE -->
 {% block javascripts %}{% endblock javascripts %}

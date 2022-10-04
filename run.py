@@ -1,12 +1,9 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
 
+import sys
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
-
+import mariadb
 from apps.config import config_dict
 from apps import create_app, db
 
@@ -15,6 +12,26 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # The configuration
 get_config_mode = 'Debug' if DEBUG else 'Production'
+
+# Connect to MariaDB Platform
+try:
+    conn = mariadb.connect(
+        user="root",
+        password="invlab",
+        host="127.0.0.1",
+        port=3306,
+        database="invlab"
+
+    )
+    print(f'Connected to Mariadb: {conn.database}')
+
+    # Get Cursor
+    cur = conn.cursor()
+
+except mariadb.Error as e:
+    print(f"Error connecting to MariaDB Platform: {e}")
+    sys.exit(1)
+
 
 try:
 

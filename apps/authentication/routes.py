@@ -4,6 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from flask import render_template, redirect, request, url_for
+import re
 from flask_login import (
     current_user,
     login_user,
@@ -54,8 +55,18 @@ def login():
     return redirect(url_for('home_blueprint.index'))
 
 
+# for validating an Email
+
 @blueprint.route('/register', methods=['GET', 'POST'])
 def register():
+    def check(email):
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if (re.fullmatch(regex, email)):
+            return True
+        else:
+            return False
+
+
     create_account_form = CreateAccountForm(request.form)
     if 'register' in request.form:
 
@@ -72,9 +83,9 @@ def register():
 
         # Check email exists
         user = Users.query.filter_by(email=email).first()
-        if user:
+        if user or not check(email):
             return render_template('accounts/register.html',
-                                   msg='Email already registered',
+                                   msg='Email already registered or invalid email',
                                    success=False,
                                    form=create_account_form)
 
