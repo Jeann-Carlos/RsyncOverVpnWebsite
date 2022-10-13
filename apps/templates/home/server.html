@@ -723,7 +723,44 @@
     </div>
     -->
 
-
+<div class="row">
+      <div class="col-sm-7">
+        <div class="card">
+          <!-- Card header -->
+          <div class="card-header border-0">
+            <h3 class="mb-0">Clients</h3>
+          </div>
+          <!-- Light table -->
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" class="sort" data-sort="clientip">Client Ip</th>
+                  <th scope="col" class="sort" data-sort="clientlog">Client Log</th>
+                  <th scope="col" class="sort" data-sort="services">Services</th>
+                </tr>
+              </thead>
+              <tbody class="list">
+              {% for entry in client_host_data %}
+               <tr>
+                <th scope="row">
+                      <div class="media align-items-center">
+                        <a href="http://localhost:5000/servers/{{segment}}/{{entry[0]}}" class="avatar rounded-circle mr-3">
+                          <i class="ni ni-world"></i>
+                        </a>
+                        <div class="media-body">
+                          <span class="name mb-0 text-sm">{{entry[0]}}</span>
+                        </div>
+                      </div>
+                    </th>
+                 <td class="clientlog">
+                    {{entry[1]}}
+                </td>
+                <td class="services">
+                    {{entry[2]}}
+                </td>
+               </tr>
+              {% endfor %}
 
   </div>
 

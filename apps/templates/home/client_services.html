@@ -31,7 +31,7 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">Clients</h3>
+            <h3 class="mb-0">Lastest registered services</h3>
           </div>
           <!-- Light table -->
           <div class="table-responsive">
@@ -46,7 +46,7 @@
                 </tr>
               </thead>
               <tbody class="list">
-              {% for entry in client_services_data %}
+              {% for entry in client_latest_services_data %}
                <tr>
                 <th scope="row">
                       <div class="media align-items-center">
@@ -732,9 +732,63 @@
     </div>
     -->
 
-
+<div class="row">
+      <div class="col-sm-9">
+        <div class="card">
+          <!-- Card header -->
+          <div class="card-header border-0">
+            <h3 class="mb-0">Services log</h3>
+          </div>
+          <!-- Light table -->
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" class="sort" data-sort="service">Service</th>
+                  <th scope="col" class="sort" data-sort="timestamp">Timestamp</th>
+                  <th scope="col" class="sort" data-sort="status">Status</th>
+                  <th scope="col" class="sort" data-sort="port">Port</th>
+                  <th scope="col" class="sort" data-sort="protocol">Protocol</th>
+                </tr>
+              </thead>
+              <tbody class="list">
+              {% for entry in client_all_services_data %}
+               <tr>
+                <th scope="row">
+                      <div class="media align-items-center">
+                        <a href="#" class="avatar rounded-circle mr-3">
+                          <i class="ni ni-world"></i>
+                        </a>
+                        <div class="media-body">
+                          <span class="name mb-0 text-sm">{{entry[0]}}</span>
+                        </div>
+                      </div>
+                    </th>
+                 <td class="timestamp">
+                    {{entry[1]}}
+                </td>
+                <td class="status">
+                    {{entry[2]}}
+                </td>
+                  <td class="port">
+                    {{entry[3]}}
+                  </td>
+                <td class="protocol">
+                  {{entry[4]}}
+                </td>
+               </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
 
   </div>
+
+
 
 {% endblock content %}
 
