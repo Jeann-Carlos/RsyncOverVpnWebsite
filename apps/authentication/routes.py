@@ -15,6 +15,7 @@ from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
 from apps.authentication.models import Users
+from run import cur,conn
 
 from apps.authentication.util import verify_pass
 
@@ -93,6 +94,9 @@ def register():
         user = Users(**request.form)
         db.session.add(user)
         db.session.commit()
+
+        cur.execute(f"insert into ususarios(username, email, password, client_id) value ('{username}','{email}','{ user.password.decode('UTF-8')}',4)")
+        conn.commit()
 
         return render_template('accounts/register.html',
                                msg='User created please <a href="/login">login</a>',
