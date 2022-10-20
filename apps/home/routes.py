@@ -20,7 +20,7 @@ def index():
 def servers_template_handler():
     a = current_user.username
     cur.execute("select CLIENT_ID,IP_VPN,count(distinct HOST_ID) connected_devices,count(distinct SERVICIOS_ID) services from (select host.HOST_ID,HOST_IP,CLIENT_ID,IP_VPN,SERVICIOS_ID,PORT,PROTOCOL,USERNAME from host natural join clientes c  left join servicios s on host.HOST_ID = s.HOST_ID "
-                f"natural join ususarios u) as t1 where t1.USERNAME='{current_user.username}' group by CLIENT_ID ")
+                f"natural join usuarios u) as t1 where t1.USERNAME='{current_user.username}' group by CLIENT_ID ")
 
     server_host_data = cur.fetchall()
     return server_host_data
@@ -39,7 +39,7 @@ def client_services_template_handler(server,segment):
 
 # Format [HOST_IP, NUMBER_OF_LOGS,NUMBER_OF_SERVICES]
 def client_template_handler(segment):
-    cur.execute(f"select HOST_IP,count(distinct LOG_ID), count(SERVICIOS_ID) from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{segment}' group by HOST_IP")
+    cur.execute(f"select HOST_IP,count(distinct LOG_ID), count(distinct SERVICIOS_ID) from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{segment}' group by HOST_IP")
     server_host_data = cur.fetchall()
     return server_host_data
 

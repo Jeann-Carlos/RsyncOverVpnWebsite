@@ -95,7 +95,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        cur.execute(f"insert into ususarios(username, email, password, client_id) value ('{username}','{email}','{ user.password.decode('UTF-8')}',4)")
+        cur.execute(f"insert into usuarios(username, email, password, client_id) value ('{username}','{email}','{ user.password.decode('UTF-8')}',4)")
         conn.commit()
 
         return render_template('accounts/register.html',
