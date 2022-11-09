@@ -41,7 +41,7 @@
                   <th scope="col" class="sort" data-sort="user">User</th>
                   <th scope="col" class="nextcron">Next Cron</th>
                   <th scope="col" class="sort" data-sort="services">Services</th>
-                  <th scope="col"></th>
+                   <th scope="col" class="sort" data-sort="services">Alerts</th>
                 </tr>
               </thead>
               <tbody class="list">
@@ -70,6 +70,11 @@
                  <td class="services">
                       {{entry[3]}}
                     </td>
+                  <td class="alerts">
+                     <a href="servers/{{entry[1]}}/alerts">{{entry[3]}}</a>
+
+                    </td>
+
               </tr>
               {% endfor %}
                <!--

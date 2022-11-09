@@ -1,5 +1,8 @@
 
 import sys
+
+import flask
+import flask as flask
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
@@ -42,6 +45,11 @@ except KeyError:
     exit('Error: Invalid <config_mode>. Expected values [Debug, Production] ')
 
 app = create_app(app_config)
+
+@app.context_processor
+def inject_stage_and_region():
+    ip_address = flask.request.remote_addr
+    return dict(stage="alpha", region="NA",server_address=ip_address+':5000')
 Migrate(app, db)
 
 if DEBUG:

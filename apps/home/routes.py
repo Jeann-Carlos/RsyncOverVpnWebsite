@@ -21,10 +21,23 @@ def servers_template_handler():
     a = current_user.username
     cur.execute("select CLIENT_ID,IP_VPN,count(distinct HOST_ID) connected_devices,count(distinct SERVICIOS_ID) services from (select host.HOST_ID,HOST_IP,CLIENT_ID,IP_VPN,SERVICIOS_ID,PORT,PROTOCOL,USERNAME from host natural join clientes c  left join servicios s on host.HOST_ID = s.HOST_ID "
                 f"natural join usuarios u) as t1 where t1.USERNAME='{current_user.username}' group by CLIENT_ID ")
+    latest_server_host_data = cur.fetchall()
+    return latest_server_host_data
+# Format [NAME,HADDRS,DATETIME,STATUS]
+def server_alert_template_handler(server):
+    cur.execute(f"select * from logs natural join host natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from logs natural join host h natural join clientes c where c.IP_VPN='{server}') and IP_VPN='{server}'"
+                f"except select * from logs natural join host natural join clientes where TIMESTAMP=(select TIMESTAMP as timestamp2 from logs natural join host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP limit 1 offset 1) and IP_VPN='{server}'")
+    latest_server_alert_data = cur.fetchall()
 
-    server_host_data = cur.fetchall()
-    return server_host_data
+    cur.execute( f"select * from log_servicios natural join servicios natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from log_servicios natural join host h natural join clientes c where c.IP_VPN='{server}') and IP_VPN='{server}'"
+        f"except select * from log_servicios natural join servicios natural join clientes where TIMESTAMP=(select TIMESTAMP as timestamp2 from log_servicios natural join host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP limit 1 offset 1) and IP_VPN='{server}'")
+    added_server_services_alert_data = cur.fetchall()
+    cur.execute(f"select * from log_servicios natural join servicios natural join clientes where TIMESTAMP=(select TIMESTAMP as timestamp2 from log_servicios natural join host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP limit 1 offset 1) and IP_VPN='{server}'"
+                f"except select * from log_servicios natural join servicios natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from log_servicios natural join host h natural join clientes c where c.IP_VPN='{server}') and IP_VPN='{server}'")
+    removed_server_services_alert_data = cur.fetchall()
 
+
+    return latest_server_alert_data,added_server_services_alert_data,removed_server_services_alert_data
 
 # Format [NAME,DATETIME,STATUS,PORT,PROTOCOLOL,ID]
 def client_services_template_handler(server,segment):
@@ -40,8 +53,10 @@ def client_services_template_handler(server,segment):
 # Format [HOST_IP, NUMBER_OF_LOGS,NUMBER_OF_SERVICES]
 def client_template_handler(segment):
     cur.execute(f"select HOST_IP,count(distinct LOG_ID), count(distinct SERVICIOS_ID) from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{segment}' group by HOST_IP")
-    server_host_data = cur.fetchall()
-    return server_host_data
+    client_host_data = cur.fetchall()
+    cur.execute(f"select HADDRS,TIMESTAMP, STATUS, HOST_IP from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{segment}' group by HOST_IP")
+    client_log_host_data = cur.fetchall()
+    return client_host_data , client_log_host_data
 
 
 @blueprint.route('/<template>')
@@ -79,8 +94,8 @@ def server_template(server):
    try:
 
         segment = get_segment(request)
-        client_host_data = client_template_handler(segment)
-        return render_template("home/server.html", segment=segment,client_host_data=client_host_data)
+        client_host_data, client_log_host_data = client_template_handler(segment)
+        return render_template("home/server.html", segment=segment,client_host_data=client_host_data,client_log_host_data=client_log_host_data)
 
    except TemplateNotFound:
         return render_template('home/page-404.html'), 404
@@ -104,7 +119,14 @@ def client_services_template(server,clientip):
    except:
         return render_template('home/page-500.html'), 500
 
-# Helper - Extract current page name from request
+
+
+@blueprint.route('/servers/<server>/alerts')
+@login_required
+def server_alerts_template(server):
+    latest_server_alert_data,added_server_services_alert_data, removed_server_services_alert_data = server_alert_template_handler(server)
+    return render_template('home/alerts.html',segment=server,latest_server_alert_data=latest_server_alert_data,added_server_services_alert_data=added_server_services_alert_data,removed_server_services_alert_data=removed_server_services_alert_data)
+
 def get_segment(request):
 
     try:
