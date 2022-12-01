@@ -1,6 +1,7 @@
+from werkzeug.utils import redirect
 
 from apps.home import blueprint
-from flask import render_template, request
+from flask import render_template, request, url_for
 from flask_login import login_required
 from jinja2 import TemplateNotFound
 from run import cur
@@ -13,12 +14,12 @@ from flask_login import (
 @blueprint.route('/index')
 @login_required
 def index():
-
-    return render_template('home/index.html', segment='index')
+        server_host_data = servers_template_handler()
+        template='servers.html'
+        return render_template("home/" + template, segment=template, server_host_data=server_host_data)
 
 # Format [CLIENT_ID,IP_VPN,NUMBER_OF_CLIENTS,NUMBER_OF_SERVICES]
 def servers_template_handler():
-    a = current_user.username
     cur.execute("select CLIENT_ID,IP_VPN,count(distinct HOST_ID) connected_devices,count(distinct SERVICIOS_ID) services from (select host.HOST_ID,HOST_IP,CLIENT_ID,IP_VPN,SERVICIOS_ID,PORT,PROTOCOL,USERNAME from host natural join clientes c  left join servicios s on host.HOST_ID = s.HOST_ID "
                 f"natural join usuarios u) as t1 where t1.USERNAME='{current_user.username}' group by CLIENT_ID ")
     latest_server_host_data = cur.fetchall()
@@ -58,6 +59,14 @@ def client_template_handler(segment):
     client_log_host_data = cur.fetchall()
     return client_host_data , client_log_host_data
 
+@blueprint.route('login.html')
+def login_redirection():
+    return redirect(url_for('authentication_blueprint.login'))
+@blueprint.route('register.html')
+def register_redirection():
+    return redirect(url_for('authentication_blueprint.register'))
+
+
 
 @blueprint.route('/<template>')
 @login_required
@@ -92,7 +101,6 @@ def route_template(template):
 def server_template(server):
 
    try:
-
         segment = get_segment(request)
         client_host_data, client_log_host_data = client_template_handler(segment)
         return render_template("home/server.html", segment=segment,client_host_data=client_host_data,client_log_host_data=client_log_host_data)
