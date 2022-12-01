@@ -2,7 +2,6 @@
 import sys
 
 import flask
-import flask as flask
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
