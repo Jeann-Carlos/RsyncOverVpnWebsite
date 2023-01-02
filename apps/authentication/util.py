@@ -33,8 +33,8 @@ def verify_pass(provided_password, stored_password):
     pwdhash = binascii.hexlify(pwdhash).decode('ascii')
     return pwdhash == stored_password
 
-def fetch_to_list(self):
-    return [[item for item in tup ] for tup in self.fetchall()]
+def fetch_to_list(cur):
+    return [[item for item in tup ] for tup in cur]
 
 # def append_to_all_list(self,index,value):
 #     for list in range(len(self)):

@@ -1,3 +1,4 @@
+from apps.authentication.util import fetch_to_list
 from run import cur
 
 def servers_template_handler(current_user):
@@ -13,7 +14,7 @@ def servers_template_handler(current_user):
     """
     cur.execute("select CLIENT_ID,IP_VPN,count(distinct HOST_ID) connected_devices,count(distinct SERVICIOS_ID) services from (select host.HOST_ID,HOST_IP,CLIENT_ID,IP_VPN,SERVICIOS_ID,PORT,PROTOCOL,USERNAME from host natural join clientes c  left join servicios s on host.HOST_ID = s.HOST_ID "
                 f"natural join usuarios u) as t1 where t1.USERNAME='{current_user.USERNAME}' group by CLIENT_ID ")
-    latest_server_host_data = cur.fetch_to_list()
+    latest_server_host_data = fetch_to_list(cur.fetchall())
     for server in latest_server_host_data:
         alerts_number = get_server_alert_count(server[1])
         server.insert(4,alerts_number)
@@ -63,13 +64,13 @@ def server_alert_template_handler(server):
 
     cur.execute(f"select  distinct t.HADDRS,(SELECT MAX(TIMESTAMP) FROM logs WHERE ls.HADDRS=t.HADDRS AND t.STATUS=ls.STATUS AND ls.HOST_ID = t.HOST_ID) as TIMESTAMP,t.STATUS,HOST_IP from (select HADDRS,STATUS,HOST_IP ,HOST_ID from logs natural join host natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from logs natural join host h natural join clientes c where c.IP_VPN='{server}') and IP_VPN='{server}'"
                 f"except select HADDRS,STATUS,HOST_IP,HOST_ID from logs natural join host natural join clientes where TIMESTAMP=(select distinct TIMESTAMP as timestamp2 from logs natural join host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP desc limit 1 offset 1) and IP_VPN='{server}') t JOIN logs ls ON  t.HOST_ID=ls.HOST_ID")
-    latest_server_alert_data =  cur.fetch_to_list()
+    latest_server_alert_data =  fetch_to_list(cur.fetchall())
     cur.execute(f"select distinct  ls.NOMBRE,ls.STATUS,(SELECT MAX(TIMESTAMP) FROM log_servicios WHERE NOMBRE=ls.NOMBRE AND STATUS=ls.STATUS AND ls.SERVICIOS_ID = t.SERVICIOS_ID)  AS TIMESTAMP,PORT,PROTOCOL,IP_VPN,t.HOST_IP from( select NOMBRE,STATUS,PORT,PROTOCOL,IP_VPN,SERVICIOS_ID,HOST_IP from log_servicios natural join  servicios  natural join host natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from log_servicios naural natural join servicios natural join host h natural join clientes c where c.IP_VPN='{server}') and IP_VPN='{server}' "
        f"except select  NOMBRE,STATUS,PORT,PROTOCOL,IP_VPN,SERVICIOS_ID,HOST_IP from log_servicios natural join servicios  natural join host natural join clientes where TIMESTAMP=(select distinct TIMESTAMP as timestamp2 from log_servicios natural join servicios natural join host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP desc limit 1 offset 1) and IP_VPN='{server}') t JOIN log_servicios ls ON t.NOMBRE=ls.NOMBRE AND t.STATUS=ls.STATUS AND t.SERVICIOS_ID=ls.SERVICIOS_ID")
-    added_server_services_alert_data = cur.fetch_to_list()
+    added_server_services_alert_data =fetch_to_list(cur.fetchall())
     cur.execute(f"select distinct ls.NOMBRE,ls.STATUS,(SELECT MAX(TIMESTAMP) FROM log_servicios WHERE NOMBRE=ls.NOMBRE AND STATUS=ls.STATUS AND ls.SERVICIOS_ID = t.SERVICIOS_ID)  AS TIMESTAMP,PORT,PROTOCOL,IP_VPN,HOST_IP,t.HOST_IP from(  select  NOMBRE,STATUS,PORT,PROTOCOL,IP_VPN,SERVICIOS_ID,HOST_IP from log_servicios natural join servicios  natural join host natural join clientes where TIMESTAMP=(select distinct TIMESTAMP as timestamp2 from log_servicios natural join servicios natural join  host h2 natural join clientes where IP_VPN='{server}' order by TIMESTAMP desc limit 1 offset 1) and IP_VPN='{server}'"
 F"except select NOMBRE,STATUS,PORT,PROTOCOL,IP_VPN,SERVICIOS_ID,HOST_IP from log_servicios natural join servicios  natural join host natural join clientes where TIMESTAMP=(select max(TIMESTAMP) from log_servicios naural join servicios natural join host h natural join clientes c where c.IP_VPN='{server}' ) and IP_VPN='{server}' ) t JOIN log_servicios ls ON t.NOMBRE=ls.NOMBRE AND t.STATUS=ls.STATUS AND t.SERVICIOS_ID=ls.SERVICIOS_ID")
-    removed_server_services_alert_data = cur.fetch_to_list()
+    removed_server_services_alert_data = fetch_to_list(cur.fetchall())
     return latest_server_alert_data,added_server_services_alert_data,removed_server_services_alert_data
 
 
@@ -101,10 +102,10 @@ def client_services_template_handler(server,segment):
         """
     cur.execute(f"select * from (select  NOMBRE,TIMESTAMP,STATUS,PORT,PROTOCOL,servicios.SERVICIOS_ID,row_number() over (partition by ls.SERVICIOS_ID order by  TIMESTAMP desc ) number from servicios "
                 f"join host h on servicios.HOST_ID = h.HOST_ID join log_servicios ls on servicios.SERVICIOS_ID = ls.SERVICIOS_ID join clientes c on c.CLIENT_ID = h.CLIENT_ID where HOST_IP='{segment}' and IP_VPN='{server}') as t where number=1")
-    client_latest_services_data= cur.fetch_to_list()
+    client_latest_services_data= fetch_to_list(cur.fetchall())
     cur.execute(f"select  NOMBRE,TIMESTAMP,STATUS,PORT,PROTOCOL,servicios.SERVICIOS_ID from servicios "
         f"join host h on servicios.HOST_ID = h.HOST_ID join log_servicios ls on servicios.SERVICIOS_ID = ls.SERVICIOS_ID join clientes c on c.CLIENT_ID = h.CLIENT_ID where HOST_IP='{segment}' and IP_VPN='{server}'")
-    client_all_services_data=cur.fetch_to_list()
+    client_all_services_data=fetch_to_list(cur.fetchall())
     return client_latest_services_data,client_all_services_data
 
 
@@ -129,7 +130,7 @@ def client_template_handler(server):
                     HOST_IP: The IP address of the host.
     """
     cur.execute(f"select HOST_IP,count(distinct LOG_ID), count(distinct SERVICIOS_ID) from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{server}' group by HOST_IP")
-    client_host_data = cur.fetch_to_list()
+    client_host_data = fetch_to_list(cur.fetchall())
     cur.execute(f"select HADDRS,TIMESTAMP, STATUS, HOST_IP from host natural join clientes c natural join logs l  left join servicios on host.HOST_ID = servicios.HOST_ID where IP_VPN='{server}' group by HOST_IP")
-    client_log_host_data = cur.fetch_to_list()
+    client_log_host_data = fetch_to_list(cur.fetchall())
     return client_host_data , client_log_host_data

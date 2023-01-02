@@ -9,7 +9,6 @@ import mariadb
 from run import conn,cur
 
 # Cursor to handle SQL queries
-cur = conn.cursor()
 
 '''
   Inserts Host services to log_servicios (depreciated)
