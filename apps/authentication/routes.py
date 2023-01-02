@@ -33,21 +33,21 @@ def login():
     if 'login' in request.form:
 
         # read form data
-        username = request.form['username']
-        password = request.form['password']
+        USERNAME = request.form['username']
+        PASSWORD = request.form['password']
 
         # Locate user
-        user = Users.query.filter_by(username=username).first()
+        user = Users.query.filter_by(USERNAME=USERNAME).first()
 
-        # Check the password
-        if user and verify_pass(password, user.password):
+        # Check the PASSWORD
+        if user and verify_pass(PASSWORD, user.PASSWORD):
 
             login_user(user)
             return redirect(url_for('authentication_blueprint.route_default'))
 
         # Something (user or pass) is not ok
         return render_template('accounts/login.html',
-                               msg='Wrong user or password',
+                               msg='Wrong user or PASSWORD',
                                form=login_form)
 
     if not current_user.is_authenticated:
@@ -56,13 +56,13 @@ def login():
     return redirect(url_for('home_blueprint.index'))
 
 
-# for validating an Email
+# for validating an EMAIL
 
 @blueprint.route('/register', methods=['GET', 'POST'])
 def register():
-    def check(email):
+    def check(EMAIL):
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if (re.fullmatch(regex, email)):
+        if (re.fullmatch(regex, EMAIL)):
             return True
         else:
             return False
@@ -71,22 +71,22 @@ def register():
     create_account_form = CreateAccountForm(request.form)
     if 'register' in request.form:
 
-        username = request.form['username']
-        email = request.form['email']
+        USERNAME = request.form['username']
+        EMAIL = request.form['email']
 
         # Check usename exists
-        user = Users.query.filter_by(username=username).first()
+        user = Users.query.filter_by(USERNAME=USERNAME).first()
         if user:
             return render_template('accounts/register.html',
-                                   msg='Username already registered',
+                                   msg='USERNAME already registered',
                                    success=False,
                                    form=create_account_form)
 
-        # Check email exists
-        user = Users.query.filter_by(email=email).first()
-        if user or not check(email):
+        # Check EMAIL exists
+        user = Users.query.filter_by(EMAIL=EMAIL).first()
+        if user or not check(EMAIL):
             return render_template('accounts/register.html',
-                                   msg='Email already registered or invalid email',
+                                   msg='EMAIL already registered or invalid EMAIL',
                                    success=False,
                                    form=create_account_form)
 
@@ -94,9 +94,8 @@ def register():
         user = Users(**request.form)
         db.session.add(user)
         db.session.commit()
-
-        cur.execute(f"insert into usuarios(username, email, password, client_id) value ('{username}','{email}','{ user.password.decode('UTF-8')}',4)")
-        conn.commit()
+     #   cur.execute(f"insert into usuarios(USERNAME, EMAIL, PASSWORD, client_id) value ('{USERNAME}','{EMAIL}','{ user.PASSWORD.decode('UTF-8')}',4)")
+     #   conn.commit()
 
         return render_template('accounts/register.html',
                                msg='User created please <a href="/login">login</a>',

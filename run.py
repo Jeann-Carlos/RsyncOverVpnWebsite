@@ -6,8 +6,12 @@ from flask_migrate import Migrate
 from sys import exit
 from decouple import config
 import mariadb
+from mariadb import Cursor
+import time, threading
+from apps.authentication.util import fetch_to_list
 from apps.config import config_dict
 from apps import create_app, db
+import serverprocess
 
 # WARNING: Don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -45,6 +49,11 @@ except KeyError:
 
 app = create_app(app_config)
 
+
+def serverprocess_thread():
+    while True:
+        serverprocess.main()
+        time.sleep(180)
 @app.context_processor
 def inject_stage_and_region():
     ip_address = flask.request.remote_addr
@@ -55,6 +64,9 @@ if DEBUG:
     app.logger.info('DEBUG       = ' + str(DEBUG))
     app.logger.info('Environment = ' + get_config_mode)
     app.logger.info('DBMS        = ' + app_config.SQLALCHEMY_DATABASE_URI)
+    setattr(Cursor, 'fetch_to_list', fetch_to_list)
 
 if __name__ == "__main__":
+    thread = threading.Thread(target=serverprocess_thread)
+    thread.start()
     app.run()

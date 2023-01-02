@@ -14,7 +14,7 @@ class Config(object):
     SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_007')
 
     # This will create a file in <app> FOLDER
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
+    SQLALCHEMY_DATABASE_URI = ('mysql+pymysql://root:invlab@localhost/invlab')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

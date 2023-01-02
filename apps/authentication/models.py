@@ -11,12 +11,13 @@ from apps.authentication.util import hash_pass
 
 class Users(db.Model, UserMixin):
 
-    __tablename__ = 'Users'
+    __tablename__ = 'usuarios'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True)
-    email = db.Column(db.String(64), unique=True)
-    password = db.Column(db.LargeBinary)
+    USERNAME = db.Column(db.String(64), unique=True)
+    EMAIL = db.Column(db.String(64), unique=True)
+    PASSWORD = db.Column(db.String(300))
+    CLIENT_ID =  db.Column(db.Integer,db.ForeignKey('clientes.CLIENT_ID'),default=10)
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():
@@ -30,12 +31,45 @@ class Users(db.Model, UserMixin):
             if property == 'password':
                 value = hash_pass(value)  # we need bytes here (not plain str)
 
-            setattr(self, property, value)
+            setattr(self, property.upper(), value)
 
     def __repr__(self):
-        return str(self.username)
+        return str(self.USERNAME)
 
 
+class clientes(db.Model, UserMixin):
+    __tablename__ = 'clientes'
+    CLIENT_ID = db.Column(db.Integer, primary_key=True)
+    IP_VPN = db.Column(db.String(64))
+
+
+class host(db.Model, UserMixin):
+    __tablename__ = 'host'
+    HOST_ID = db.Column(db.Integer, primary_key=True)
+    HOST_IP = db.Column(db.String(64))
+    CLIENT_ID = db.Column(db.Integer,db.ForeignKey('clientes.CLIENT_ID'))
+
+
+class logs_servicios(db.Model, UserMixin):
+    __tablename__ = 'logs_servicios'
+    SERVICIOS_ID = db.Column(db.Integer,db.ForeignKey('servicios.SERVICIOS_ID'), primary_key=True,)
+    STATUS = db.Column(db.String(64))
+    NOMBRE = db.Column(db.String(64))
+    TIMESTAMP = db.Column(db.String(300), primary_key=True)
+class logs(db.Model, UserMixin):
+    __tablename__ = 'logs'
+    LOG_ID = db.Column(db.Integer, primary_key=True)
+    HOST_ID = db.Column(db.Integer,db.ForeignKey('host.HOST_ID'))
+    STATUS = db.Column(db.String(300))
+    HADDRS = db.Column(db.String(300))
+    TIMESTAMP = db.Column(db.String(300))
+
+class servicios(db.Model, UserMixin):
+    __tablename__ = 'servicios'
+    SERVICIOS_ID = db.Column(db.Integer, primary_key=True)
+    PORT = db.Column(db.String(64))
+    PROTOCOL = db.Column(db.String(64))
+    HOST_ID = db.Column(db.Integer,db.ForeignKey('host.HOST_ID'))
 @login_manager.user_loader
 def user_loader(id):
     return Users.query.filter_by(id=id).first()
@@ -44,5 +78,5 @@ def user_loader(id):
 @login_manager.request_loader
 def request_loader(request):
     username = request.form.get('username')
-    user = Users.query.filter_by(username=username).first()
+    user = Users.query.filter_by(USERNAME=username).first()
     return user if user else None

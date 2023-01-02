@@ -12,9 +12,9 @@
             <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
             <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers.html"><i class="fas fa-home"></i></a></li>
-                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers.html">Servers</a></li>
-                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers/{{segment}}">10.0.0.1</a></li>
+                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers">Servers</a></li>
+                <li class="breadcrumb-item"><a href="http://{{server_address}}/servers/{{segment}}">{{segment}}</a></li>
                   <li class="breadcrumb-item active" aria-current="page">Alerts</li>
               </ol>
             </nav>
@@ -50,16 +50,16 @@
 
                 <td class="hardwareaddress">
 
-                  {{entry[2]}}
+                  {{entry[0]}}
                 </td>
                  <td class="timestamp">
-                      {{entry[3]}}
+                      {{entry[1]}}
                     </td>
                   <td class="status">
-                     {{entry[4]}}
+                     {{entry[2]}}
                     </td>
                   <td class="parentip">
-                     {{entry[6]}}
+                     {{entry[3]}}
               </tr>
               {% endfor %}
               </tbody>
@@ -115,6 +115,7 @@
                   <th scope="col" class="nextcron">Port</th>
                   <th scope="col" class="nextcron">Protocol</th>
                   <th scope="col" class="nextcron">IP_VPN</th>
+                     <th scope="col" class="nextcron">PARENT_IP</th>
                 </tr>
               </thead>
               <tbody class="list">
@@ -123,25 +124,27 @@
 
                 <td class="name">
 
-                  {{entry[1]}}
+                  {{entry[0]}}
                 </td>
                  <td class="status">
-                      {{entry[2]}}
+                      {{entry[1]}}
                     </td>
                   <td class="timestamp">
-                     {{entry[3]}}
+                     {{entry[2]}}
 
                     </td>
                  <td class="port">
-                     {{entry[4]}}
+                     {{entry[3]}}
                     </td>
                  <td class="protocol">
-                     {{entry[5]}}
+                     {{entry[4]}}
                     </td>
                  <td class="ipvpn">
-                     {{entry[8]}}
-
+                     {{entry[5]}}
                     </td>
+                  <td class="parentip">
+                     {{entry[6]}}
+                  </td>
               </tr>
               {% endfor %}
               </tbody>
@@ -196,6 +199,7 @@
                   <th scope="col" class="nextcron">Port</th>
                   <th scope="col" class="nextcron">Protocol</th>
                   <th scope="col" class="nextcron">IP_VPN</th>
+                   <th scope="col" class="nextcron">Parent_IP</th>
                 </tr>
               </thead>
               <tbody class="list">
@@ -204,25 +208,27 @@
 
                 <td class="name">
 
-                  {{entry[1]}}
+                  {{entry[0]}}
                 </td>
                  <td class="status">
-                      {{entry[2]}}
+                      {{entry[1]}}
                     </td>
                   <td class="timestamp">
-                     {{entry[3]}}
+                     {{entry[2]}}
 
                     </td>
                  <td class="port">
-                     {{entry[4]}}
+                     {{entry[3]}}
                     </td>
                  <td class="protocol">
-                     {{entry[5]}}
+                     {{entry[4]}}
                     </td>
                  <td class="ipvpn">
-                     {{entry[8]}}
-
-                    </td>
+                     {{entry[5]}}
+                 </td>
+                <td class="parentip">
+                     {{entry[6]}}
+                </td>
               </tr>
               {% endfor %}
               </tbody>
