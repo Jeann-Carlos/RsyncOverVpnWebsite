@@ -1,11 +1,14 @@
+import time
+
 import flask
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
 import threading
+
+import serverprocess
 from apps.config import config_dict
 from apps import create_app, db
-from database_cursor import serverprocess_thread
 
 # WARNING: Don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -23,7 +26,10 @@ except KeyError:
 
 app = create_app(app_config)
 
-
+def serverprocess_thread():
+    while True:
+        serverprocess.main()
+        time.sleep(180)
 @app.context_processor
 def inject_stage_and_region():
     ip_address = flask.request.remote_addr

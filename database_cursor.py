@@ -1,7 +1,6 @@
 import sys
-import time
+
 import mariadb
-import serverprocess
 
 # Connect to MariaDB Platform
 try:
@@ -22,7 +21,3 @@ except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
 
-def serverprocess_thread():
-    while True:
-        serverprocess.main()
-        time.sleep(180)
