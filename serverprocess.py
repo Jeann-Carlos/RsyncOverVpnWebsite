@@ -6,7 +6,7 @@ import time
 import datetime
 import mariadb
 
-from run import conn,cur
+from database_cursor import conn,cur
 
 # Cursor to handle SQL queries
 

@@ -1,41 +1,17 @@
-
-import sys
-
 import flask
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
-import mariadb
-import time, threading
+import threading
 from apps.config import config_dict
 from apps import create_app, db
-import serverprocess
+from database_cursor import serverprocess_thread
 
 # WARNING: Don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # The configuration
 get_config_mode = 'Debug' if DEBUG else 'Production'
-
-# Connect to MariaDB Platform
-try:
-    conn = mariadb.connect(
-        user="root",
-        password="invlab",
-        host="127.0.0.1",
-        port=3306,
-        database="invlab"
-
-    )
-    print(f'Connected to Mariadb: {conn.database}')
-
-    # Get Cursor
-    cur = conn.cursor()
-
-except mariadb.Error as e:
-    print(f"Error connecting to MariaDB Platform: {e}")
-    sys.exit(1)
-
 
 try:
 
@@ -48,10 +24,6 @@ except KeyError:
 app = create_app(app_config)
 
 
-def serverprocess_thread():
-    while True:
-        serverprocess.main()
-        time.sleep(180)
 @app.context_processor
 def inject_stage_and_region():
     ip_address = flask.request.remote_addr

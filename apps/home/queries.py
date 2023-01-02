@@ -1,6 +1,5 @@
 from apps.authentication.util import fetch_to_list
-from run import cur
-
+from database_cursor import conn,cur
 def servers_template_handler(current_user):
     """
     Retrieves data about the servers and connected devices for the current user.
