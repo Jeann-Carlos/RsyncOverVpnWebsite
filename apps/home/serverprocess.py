@@ -204,7 +204,7 @@ def main():
     print(f"Starting insertion at {datetime.datetime.now()}")
     if not hosts:
         print('Nothing to insert')
-        exit(0)
+        return 0
     for cur_client_ip in hosts:
         try:
             for cur_host_ip in os.listdir('/home/client_rrsync/results/' + cur_client_ip + '/results/'):
