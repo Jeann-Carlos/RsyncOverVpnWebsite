@@ -4,8 +4,7 @@ from flask_login import login_required
 from jinja2 import TemplateNotFound
 from werkzeug.utils import redirect
 from flask_login import current_user
-import serverprocess
-from apps.home import blueprint
+from apps.home import blueprint, serverprocess
 from apps.home.queries import servers_template_handler, client_template_handler, client_services_template_handler, \
     server_alert_template_handler
 
@@ -19,14 +18,7 @@ def index():
     Returns:
         A rendered template for the servers page.
     """
-
-    def serverprocess_thread():
-        serverprocess.main()
-
-    # To reload server scans
-    thread = threading.Thread(target=serverprocess_thread)
-    thread.start()
-
+    serverprocess.main()
     # Display server data
     server_host_data = servers_template_handler(current_user)
     segment = get_segment(request)
