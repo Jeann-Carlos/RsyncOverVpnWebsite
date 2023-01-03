@@ -4,8 +4,6 @@ import flask
 from flask_migrate import Migrate
 from sys import exit
 from decouple import config
-import threading
-import serverprocess
 from apps.config import config_dict
 from apps import create_app, db
 
@@ -26,10 +24,7 @@ except KeyError:
 
 app = create_app(app_config)
 
-def serverprocess_thread():
-    while True:
-        serverprocess.main()
-        time.sleep(180)
+
 @app.context_processor
 def inject_stage_and_region():
     ip_address = flask.request.remote_addr
@@ -42,8 +37,7 @@ if DEBUG:
     app.logger.info('DBMS        = ' + app_config.SQLALCHEMY_DATABASE_URI)
 
 if __name__ == "__main__":
-    thread = threading.Thread(target=serverprocess_thread)
-    thread.start()
+
     app.run()
 
 
