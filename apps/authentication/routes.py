@@ -12,7 +12,6 @@ from flask_login import (
     logout_user
 )
 
-import serverprocess
 from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
@@ -30,11 +29,6 @@ def route_default():
 
 @blueprint.route('/login', methods=['GET', 'POST'])
 def login():
-    def serverprocess_thread():
-        serverprocess.main()
-
-    thread = threading.Thread(target=serverprocess_thread)
-    thread.start()
     login_form = LoginForm(request.form)
     if 'login' in request.form:
 
