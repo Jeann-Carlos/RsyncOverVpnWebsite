@@ -219,6 +219,7 @@ def main():
                     cur_host_service_id = insertHostServices(cur_host_id, services)
                     hardware_address = getMacAddress(filecontent)
                     insertHostLogs(cur_host_id, hardware_address)
+                    current_file.close()
                 except FileNotFoundError as err:
                     print(f"current directory: {cur_host_ip} doesn't have the scan folder...skipping.")
                     pass
