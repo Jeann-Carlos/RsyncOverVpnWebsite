@@ -1,13 +1,10 @@
+import logging
 import os
 import re
-import subprocess
 import datetime
-import sys
-
 import mariadb
 from database_cursor import conn,cur
 
-# Cursor to handle SQL queries
 
 '''
   Inserts Host services to log_servicios (depreciated)
@@ -199,32 +196,75 @@ def insertHostIP(cur_host_ip, cur_client_id, cur_client_ip):
         return host_id
 
 
+def process_directory(directory):
+    # Process all the files in the given directory
+    for cur_client_ip in os.listdir(directory):
+        client_path = os.path.join(directory, cur_client_ip)
+        if os.path.isdir(client_path):
+            for cur_host_ip in os.listdir(os.path.join(client_path, 'results')):
+                host_path = os.path.join(client_path, 'results', cur_host_ip)
+                if os.path.isdir(host_path):
+                    scan_path = os.path.join(host_path, 'scans', '_full_tcp_nmap.txt')
+                    if os.path.exists(scan_path):
+                        with open(scan_path, 'r') as f:
+                            file_content = f.read()
+                            cur_client_id = insertClientIP(cur_client_ip)
+                            cur_host_id = insertHostIP(cur_host_ip, cur_client_id, cur_client_ip)
+                            services = getHostServicesInfo(file_content)
+                            cur_host_service_id = insertHostServices(cur_host_id, services)
+                            hardware_address = getMacAddress(file_content)
+                            insertHostLogs(cur_host_id, hardware_address)
+                    else:
+                        logging.warning(f"Scan file not found at {scan_path}")
+                else:
+                    logging.warning(f"Invalid host directory: {host_path}")
+        else:
+            logging.warning(f"Invalid client directory: {client_path}")
+
 def main():
-    hosts = os.listdir("/home/client_rrsync/results/finished/")
-    print(f"Starting insertion at {datetime.datetime.now()}")
-    if not hosts:
-        print('Nothing to insert')
+    logging.basicConfig(level=logging.INFO)
+    finished_directory = '/home/client_rrsync/results/finished/'
+    if not os.listdir(finished_directory):
+        logging.info("Nothing to insert")
         return 0
-    for cur_client_ip in hosts:
-        try:
-            for cur_host_ip in os.listdir('/home/client_rrsync/results/' + cur_client_ip + '/results/'):
-                try:
-                    current_file = open(
-                        '/home/client_rrsync/results/' + cur_client_ip + '/results/' + cur_host_ip + '/scans/_full_tcp_nmap.txt')
-                    filecontent = current_file.read()
-                    cur_client_id = insertClientIP(cur_client_ip)
-                    cur_host_id = insertHostIP(cur_host_ip, cur_client_id, cur_client_ip)
-                    services = getHostServicesInfo(filecontent)
-                    cur_host_service_id = insertHostServices(cur_host_id, services)
-                    hardware_address = getMacAddress(filecontent)
-                    insertHostLogs(cur_host_id, hardware_address)
-                    current_file.close()
-                except FileNotFoundError as err:
-                    print(f"current directory: {cur_host_ip} doesn't have the scan folder...skipping.")
-                    pass
-        except FileNotFoundError as err:
-            print(f"Current folder: {cur_client_ip} doesn't have a valid directory ignoring...")
-            pass
-        removeFinishedScan(cur_client_ip)
+    logging.info(f"Starting insertion at {datetime.datetime.now()}")
+    process_directory(finished_directory)
+    for cur_client_ip in os.listdir(finished_directory):
+        pass
+        #removeFinishedScan(cur_client_ip)
+
+
+
+
+# def main():
+#     hosts = os.listdir("/home/client_rrsync/results/finished/")
+#     print(f"Starting insertion at {datetime.datetime.now()}")
+#     if not hosts:
+#         print('Nothing to insert')
+#         return 0
+#     for cur_client_ip in hosts:
+#         try:
+#             for cur_host_ip in os.listdir('/home/client_rrsync/results/' + cur_client_ip + '/results/'):
+#                 try:
+#                     current_file = open(
+#                         '/home/client_rrsync/results/' + cur_client_ip + '/results/' + cur_host_ip + '/scans/_full_tcp_nmap.txt')
+#                     filecontent = current_file.read()
+#                     cur_client_id = insertClientIP(cur_client_ip)
+#                     cur_host_id = insertHostIP(cur_host_ip, cur_client_id, cur_client_ip)
+#                     services = getHostServicesInfo(filecontent)
+#                     cur_host_service_id = insertHostServices(cur_host_id, services)
+#                     hardware_address = getMacAddress(filecontent)
+#                     insertHostLogs(cur_host_id, hardware_address)
+#                     current_file.close()
+#                 except FileNotFoundError as err:
+#                     print(f"current directory: {cur_host_ip} doesn't have the scan folder...skipping.")
+#                     current_file.close()
+#                     pass
+#         except FileNotFoundError as err:
+#             print(f"Current folder: {cur_client_ip} doesn't have a valid directory ignoring...")
+#             current_file.close()
+#             pass
+#         removeFinishedScan(cur_client_ip)
+
 
 
