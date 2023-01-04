@@ -1,4 +1,4 @@
-import logging
+
 import os
 import re
 import datetime
@@ -215,19 +215,18 @@ def process_directory(directory):
                             hardware_address = getMacAddress(file_content)
                             insertHostLogs(cur_host_id, hardware_address)
                     else:
-                        logging.warning(f"Scan file not found at {scan_path}")
+                        print(f"Scan file not found at {scan_path}")
                 else:
-                    logging.warning(f"Invalid host directory: {host_path}")
+                    print(f"Invalid host directory: {host_path}")
         else:
-            logging.warning(f"Invalid client directory: {client_path}")
+            print(f"Invalid client directory: {client_path}")
 
 def main():
-    logging.basicConfig(level=logging.INFO)
     finished_directory = '/home/client_rrsync/results/finished/'
     if not os.listdir(finished_directory):
-        logging.info("Nothing to insert")
+        print("Nothing to insert")
         return 0
-    logging.info(f"Starting insertion at {datetime.datetime.now()}")
+    print(f"Starting insertion at {datetime.datetime.now()}")
     process_directory(finished_directory)
     for cur_client_ip in os.listdir(finished_directory):
         pass
